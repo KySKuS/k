@@ -126,3 +126,49 @@ w = csv.DictWriter(file, fieldnames=['id', 'Name', 'titleProject_id',
 'class', 'score'])
 w.writeheader()
 w.writerows(students_with_hash)'''
+#quicksort
+'''
+def quicksort(alist, start, end):
+    i = start
+    j = end
+    pivot = alist[(start+end)//2]
+    
+    while True:
+        while alist[i] < pivot:
+            i = i + 1 
+        while alist[j] > pivot:
+            j = j - 1     
+        if i <= j:
+            alist[i], alist[j] = alist[j], alist[i]
+            i = i + 1
+            j = j - 1
+        else:
+            break
+    
+    if start < j:
+        quicksort(alist,start,j)
+    if i < end:
+        quicksort(alist,i,end)
+
+alist = input('Enter the list of numbers: ').split()
+alist = [int(x) for x in alist]
+quicksort(alist, 0, len(alist))
+print('Sorted list: ', end='')
+print(alist)
+'''
+#insertsort
+'''
+def insertion_sort(alist):
+    for i in range(1, len(alist)):
+        j = i
+        while (j > 0 and alist[j] < alist[j-1]):
+            alist[j], alist[j-1] = alist[j-1], alist[j]
+            j = j - 1
+
+ 
+alist = input('Enter the list of numbers: ').split()
+alist = [int(x) for x in alist]
+insertion_sort(alist)
+print('Sorted list: ', end='')
+print(alist)
+'''
