@@ -1,4 +1,5 @@
-'''import csv
+'''
+import csv
 with open('students.csv', encoding="utf8") as csvfile:
 reader = csv.reader(csvfile, delimiter=',', quotechar='"')
 answer = list(reader)[1:]
@@ -20,9 +21,11 @@ el[-1] = round(sum_class[el[-2]] / count_class[el[-2]], 3)
 with open('students_new.csv', 'w', newline='', encoding='utf-8') as file:
 w = csv.writer(file)
 w.writerow(['id', 'Name', 'titleProject_id', 'class', 'score'])
-w.writerows(answer)'''
+w.writerows(answer)
+'''
 #2
-'''import csv
+'''
+import csv
 
 with open('students.csv', encoding="utf8") as csvfile:
 reader = list(csv.DictReader(csvfile, delimiter=',', quotechar='"'))
@@ -45,7 +48,8 @@ surname, name, patronymic = el["Name"].split()
 print(f'{count} место: {name[0]}. {surname}')
 count += 1
 if count == 4:
-break'''
+break
+'''
 #3
 '''
 
@@ -68,7 +72,8 @@ print(f"Проект No{id_project} делал: {name[0]}. {surname} он(а)
 break
 else:
 print('Ничего не найдено')
-id_project = input()'''
+id_project = input()
+'''
 
 #4
 '''
@@ -94,7 +99,8 @@ with open('students_new.csv', 'w', newline='', encoding='utf-8') as file:
 w = csv.DictWriter(file, fieldnames=['id', 'Name', 'titleProject_id',
 'class', 'score', 'login', 'password'])
 w.writeheader()
-w.writerows(students_passwords)'''
+w.writerows(students_passwords)
+'''
 
 
 #5
@@ -125,7 +131,8 @@ file:
 w = csv.DictWriter(file, fieldnames=['id', 'Name', 'titleProject_id',
 'class', 'score'])
 w.writeheader()
-w.writerows(students_with_hash)'''
+w.writerows(students_with_hash)
+'''
 #quicksort
 '''
 def quicksort(alist, start, end):
