@@ -1,27 +1,30 @@
 '''
 import csv
-with open('students.csv', encoding="utf8") as csvfile:
-reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-answer = list(reader)[1:]
-for id, name, titleProject_id, level, score in answer:
-if 'Хадаров Владимир' in name:
-print(f"Ты получил: {score}, за проект - {titleProject_id}")
-break
-count_class = {}
-sum_class = {}
-for el in answer:
-count_class[el[-2]] = count_class.get(el[-2], 0) + 1
-sum_class[el[-2]] = count_class.get(el[-2], 0) + (int(el[-1]) if
 
-el[-1] != 'None' else 0)
-for el in answer:
-if el[-1] == 'None':
-el[-1] = round(sum_class[el[-2]] / count_class[el[-2]], 3)
+with open('grants.csv', 'r', encoding='cp1251') as file:
+    researchers_list = list(csv.DictReader(file, delimiter=';'))
+    # находим данные по Агафье
+    for researcher in researchers_list:
+        if 'Агафья' in researcher['Full_Name'] and 'Ершова' in researcher['Full_Name']:
+            print(f'Вы получили {researcher["Prize"]} рублей в конкурсе {researcher["Nomination"]} с номером заявки {researcher["Project_id"]}.')
+            break
+    # считаем сумму призов и их количество по каждой номинации среди известных значений
+    sums, counts = {}, {}
+    for researcher in researchers_list:
+        if researcher["Prize"] != 'NULL':
+            sums[researcher['Nomination']] = sums.get(researcher['Nomination'], 0) + int(researcher['Prize'])
+            counts[researcher['Nomination']] = counts.get(researcher['Nomination'], 0) + 1
+    # заменяем неизвестные значения на средние в номинации
+    for researcher in researchers_list:
+        if researcher['Prize'] == 'NULL':
+            researcher['Prize'] = round(sums[researcher['Nomination']] // counts[researcher['Nomination']], -3)
 
-with open('students_new.csv', 'w', newline='', encoding='utf-8') as file:
-w = csv.writer(file)
-w.writerow(['id', 'Name', 'titleProject_id', 'class', 'score'])
-w.writerows(answer)
+# записываем обновлённые значения в файл grants_new.csv
+with open('grants_new.csv', 'w', encoding='cp1251') as file:
+    writer = csv.DictWriter(file, delimiter=';', fieldnames=['id', 'Full_Name', 'Project_id', 'Nomination', 'Prize'])
+    writer.writeheader()
+    writer.writerows(researchers_list)
+
 '''
 #2
 '''
@@ -49,6 +52,70 @@ print(f'{count} место: {name[0]}. {surname}')
 count += 1
 if count == 4:
 break
+
+
+
+
+import csv
+
+def merge_sort(data):
+    '''
+    Функция сортировки методом слияния, осуществляющая разделение списка
+
+    data – сортируемый список/массив
+    '''
+    if len(data) <= 1: return data
+    mid = len(data) // 2
+    left, right = merge_sort(data[:mid]), merge_sort(data[mid:])
+    return merge(left, right, data)
+
+
+def merge(left, right, merged):
+
+    
+    Вспомогательная функция для merge_sort, осуществляющая непосредственно слияние
+
+    left, right – отсортированные списки/массивы, которые необходимо соединить
+    merged – отсортированный результат слияния left и merged
+    
+    left_cursor, right_cursor = 0, 0
+    while left_cursor < len(left) and right_cursor < len(right):
+        left_value = int(left[left_cursor]['Prize']) if left[left_cursor]['Prize'] != 'NULL' else 0
+        right_value = int(right[right_cursor]['Prize']) if right[right_cursor]['Prize'] != 'NULL' else 0
+        if left_value >= right_value:
+            merged[left_cursor + right_cursor] = left[left_cursor]
+            left_cursor += 1
+        else:
+            merged[left_cursor + right_cursor] = right[right_cursor]
+            right_cursor += 1
+            
+    for left_cursor in range(left_cursor, len(left)):
+        merged[left_cursor + right_cursor] = left[left_cursor]
+        
+    for right_cursor in range(right_cursor, len(right)):
+        merged[left_cursor + right_cursor] = right[right_cursor]
+
+    return merged
+
+
+with open('grants.csv', 'r', encoding='cp1251') as file:
+    researchers_list = list(csv.DictReader(file, delimiter=';'))
+
+    merge_sort(researchers_list)
+
+    top_position = 0
+    print(f'Номинация: Проект будущего')
+    for researcher in researchers_list:
+        if researcher['Nomination'] == 'Проект будущего':
+            top_position += 1
+            name, patronymic, surname = researcher['Full_Name'].split()
+            print(f'Топ-{top_position}: {surname} {name[0]}.')
+            if top_position == 3: break
+
+# with open('grants_sort.csv', 'w', encoding='cp1251') as file:
+#     writer = csv.DictWriter(file, delimiter=';', fieldnames=['id', 'Full_Name', 'Project_id', 'Nomination', 'Prize'])
+#     writer.writeheader()
+#     writer.writerows(researchers_list)
 '''
 #3
 '''
@@ -73,6 +140,52 @@ break
 else:
 print('Ничего не найдено')
 id_project = input()
+
+
+
+
+import csv
+# Linear search
+with open('grants.csv', 'r', encoding='cp1251') as file:
+    researchers_list = list(csv.DictReader(file, delimiter=';'))
+
+    project_id = input()
+    while project_id.lower() != 'стоп' and project_id != '':
+        project_id = int(project_id)
+        for researcher in researchers_list:
+            if project_id == int(researcher['Project_id']):
+                name, patronymic, surname = researcher['Full_Name'].split()
+                prize = researcher["Prize"][:-3] if researcher['Prize'] != 'NULL' else 'NULL'
+                print(f'Заявка № {project_id} Автор: {surname} {name[0]}.{patronymic[0]}. Сумма – {prize} тыс. руб.')
+                break # если точно известно, что заявка уникальна (в файле, к сожалению, это не так)
+        else:
+            print('Такой заявки нет в реестре')
+        project_id = input()
+
+# Binary search
+# with open('grants.csv', 'r', encoding='cp1251') as file:
+#     researchers_list = list(csv.DictReader(file, delimiter=';'))
+#     researchers_list = sorted(researchers_list, key=lambda x: int(x['Project_id']))
+
+
+#     project_id = input()
+#     while project_id.lower() != 'стоп' and project_id != '':
+#         project_id = int(project_id)
+        
+#         left, right = 0, len(researchers_list) - 1
+#         while left <= right:
+#             middle = (left + right) // 2
+#             if project_id == int(researchers_list[middle]['Project_id']):
+#                 name, patronymic, surname = researchers_list[middle]['Full_Name'].split()
+#                 print(f'Заявка № {project_id} Автор: {surname} {name[0]}.{patronymic[0]}. Сумма – {researchers_list[middle]["Prize"][:-3]} тыс. руб.')
+#                 break # если известно, что заявка точно уникальна
+#             elif project_id < int(researchers_list[middle]['Project_id']):
+#                 right = middle - 1
+#             else:
+#                 left = middle + 1
+#         else:
+#             print('Такой заявки нет в реестре')
+#         project_id = input()
 '''
 
 #4
@@ -100,6 +213,51 @@ w = csv.DictWriter(file, fieldnames=['id', 'Name', 'titleProject_id',
 'class', 'score', 'login', 'password'])
 w.writeheader()
 w.writerows(students_passwords)
+
+
+import csv
+import string
+import random 
+
+def create_login(fio):
+    ''''''
+    Функция создания логина пользователя по строке ФИО
+
+    fio – строка с именем, отчеством и фамилией пользователя
+    ''''''
+    name, patronymic, surname = fio.split()
+    return f'{name[0]}{patronymic[0]}{surname}'
+
+def create_password():
+    ''''''
+    Функция генерации пароля по требованиям
+    ''''''
+    lower = string.ascii_lowercase
+    upper = string.ascii_uppercase
+    digit = string.digits
+    comma = '!?().'
+    letters = lower + upper + digit + comma
+
+    while True:
+        password = ''.join(random.choices(letters, k=10))
+        any_lower = any(char in password for char in lower)
+        any_upper = any(char in password for char in upper)
+        any_digit = any(char in password for char in digit)
+        any_comma = any(char in password for char in comma)
+        if any_lower + any_upper + any_digit + any_comma > 1: 
+            return password
+
+with open('grants.csv', 'r', encoding='cp1251') as file:
+    researchers_list = list(csv.DictReader(file, delimiter=';'))
+
+    for researcher in researchers_list:
+        researcher['Login'] = create_login(researcher['Full_Name'])
+        researcher['Password'] = create_password()
+
+with open('grants_auths.csv', 'w', encoding='cp1251') as file:
+    writer = csv.DictWriter(file, delimiter=';', fieldnames=['id', 'Full_Name', 'Project_id', 'Nomination', 'Prize', 'Login', 'Password'])
+    writer.writeheader()
+    writer.writerows(researchers_list)
 '''
 
 
@@ -132,6 +290,34 @@ w = csv.DictWriter(file, fieldnames=['id', 'Name', 'titleProject_id',
 'class', 'score'])
 w.writeheader()
 w.writerows(students_with_hash)
+
+
+
+import csv
+
+def create_hash(s):
+    alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
+    alphabet += alphabet.upper()
+    alphabet += ' '
+    p, m = 67, 10**9 + 9  # 1e9 + 9
+    hash = 0
+    dictionary = {alphabet[i]: i + 1  for i in range(len(alphabet))}
+    for i in range(len(s)):
+        hash += dictionary[s[i]] * (i + 1)**2
+    hash *= (p**(len(s)) - 1)
+    hash += p
+    return hash % m
+
+with open('grants.csv', 'r', encoding='cp1251') as file:
+    researchers_list = list(csv.DictReader(file, delimiter=';'))
+
+    for researcher in researchers_list:
+        researcher['id'] = create_hash(researcher['Full_Name'])
+
+with open('grants_hash.csv', 'w', encoding='cp1251') as file:
+    writer = csv.DictWriter(file, delimiter=';', fieldnames=['id', 'Full_Name', 'Project_id', 'Nomination', 'Prize'])
+    writer.writeheader()
+    writer.writerows(researchers_list)
 '''
 #quicksort
 '''
